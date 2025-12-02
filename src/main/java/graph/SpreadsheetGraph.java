@@ -90,11 +90,11 @@ public class SpreadsheetGraph extends HashGraph<String, String>{
         String operation = edgesIn.get(0).getOperation();
 
         switch(operation){
-            case "linked" -> linked();
-            case "sum"    -> sum();
-            case "avg"    -> avg();
-            case "max"    -> max();
-            case "min"    -> min();
+            case "linked" -> linked(edgesIn.get(0));
+            case "sum"    -> sum(edgesIn);
+            case "avg"    -> avg(edgesIn);
+            case "max"    -> max(edgesIn);
+            case "min"    -> min(edgesIn);
         }
     }
         
@@ -104,25 +104,102 @@ public class SpreadsheetGraph extends HashGraph<String, String>{
         }
     }
     
-    protected void linked(){
-    
+    protected void linked(Edge<String,String> edges){
+        edges.getTo().setValue(edges.getFrom().getValue());
     }
     
-    protected void sum(){
-        
+    protected void sum(List<Edge<String,String>> edges){
+        int sum = 0;
+        int count = 0;
+
+        for (Edge<String, String> e : edges) {
+            Integer v = safeParse(e.getFrom().getValue());
+            if (v != null) {
+                sum += v;
+                count++;
+            }
+        }
+        if(count == 0){
+            edges.get(0).getTo().setValue("");
+        }else{
+            edges.get(0).getTo().setValue(String.valueOf(sum));
+        }
     }
     
-    protected void avg(){
-        
+     
+    protected void avg(List<Edge<String,String>> edges){
+        int sum = 0;
+        int count = 0;
+
+        for (Edge<String, String> e : edges) {
+            Integer v = safeParse(e.getFrom().getValue());
+            if (v != null) {
+                sum += v;
+                count++;
+            }
+        }
+
+        if (count == 0) {
+            edges.get(0).getTo().setValue("");
+        } else {
+            double avg = (double) sum / count;
+            edges.get(0).getTo().setValue(String.valueOf(avg));
+        }
     }
     
-    protected void max(){
-        
+    
+    protected void max(List<Edge<String,String>> edges){
+        Integer currentMax = null;
+
+        for (Edge<String, String> e : edges) {
+            Integer v = safeParse(e.getFrom().getValue());
+            if (v != null) {
+                if (currentMax == null || v > currentMax) {
+                    currentMax = v;
+                }
+            }
+        }
+
+        if (currentMax == null) {
+            edges.get(0).getTo().setValue("");
+        } else {
+            edges.get(0).getTo().setValue(String.valueOf(currentMax));
+        }
     }
     
-    protected void min(){
-        
+    
+    protected void min(List<Edge<String,String>> edges){
+        Integer currentMin = null;
+
+        for (Edge<String, String> e : edges) {
+            Integer v = safeParse(e.getFrom().getValue());
+            if (v != null) {
+                if (currentMin == null || v < currentMin) {
+                    currentMin = v;
+                }
+            }
+        }
+
+        if (currentMin == null) {
+            edges.get(0).getTo().setValue("");
+        } else {
+            edges.get(0).getTo().setValue(String.valueOf(currentMin));
+        }
     }
     
+    
+    
+    private Integer safeParse(String value) {
+        if (value == null || value.isBlank()) {
+            return null; 
+        }
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Celda no numérica: \"" + value + "\"");
+        }
+    }
+
+
 
 }
